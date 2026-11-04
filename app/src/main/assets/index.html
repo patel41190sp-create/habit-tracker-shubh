@@ -1,5 +1,31 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en"><head>
+<script>
+(function(){
+  if(!window.AndroidDownloader)return;
+  window.claude=window.claude||{};
+  window.claude.use=function(name){
+    if(name!=='downloads')return Promise.resolve(null);
+    return Promise.resolve({
+      save:function(o){
+        return new Promise(function(res,rej){
+          var r=new FileReader();
+          r.onload=function(){
+            try{
+              var b64=String(r.result).split(',')[1]||'';
+              var ok=window.AndroidDownloader.save(o.filename,(o.data&&o.data.type)||'application/octet-stream',b64);
+              if(ok)res();else rej({code:'error'});
+            }catch(e){rej({code:'error'})}
+          };
+          r.onerror=function(){rej({code:'error'})};
+          r.readAsDataURL(o.data);
+        });
+      }
+    });
+  };
+})();
+</script>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Habit Tracker Shubh</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
