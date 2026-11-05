@@ -34,6 +34,17 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
           echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
+      - name: Check signing key
+        if: env.KEYSTORE_BASE64 != ''
+        continue-on-error: true
+        run: |
+          echo "BASE64 length: ${#KEYSTORE_BASE64} (should be 3700)"
+          echo "STORE password length: ${#KEYSTORE_PASSWORD} (should be 18)"
+          echo "KEY password length: ${#KEY_PASSWORD} (should be 18)"
+          echo "ALIAS length: ${#KEY_ALIAS} (should be 5)"
+          ls -l "$RUNNER_TEMP/release.jks"
+          keytool -list -keystore "$RUNNER_TEMP/release.jks" -storepass "$KEYSTORE_PASSWORD" 2>&1 | head -5
+
       - name: Build signed release APK (real ads)
         if: env.KEYSTORE_BASE64 != ''
         run: gradle assembleRelease
