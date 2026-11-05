@@ -8,6 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
 
@@ -20,10 +25,26 @@ jobs:
         with:
           gradle-version: 8.13
 
-      - name: Build debug APK
+      - name: Build debug APK (test ads)
         run: gradle assembleDebug
+
+      - name: Decode signing key
+        if: env.KEYSTORE_BASE64 != ''
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Build signed release APK (real ads)
+        if: env.KEYSTORE_BASE64 != ''
+        run: gradle assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Habit-Tracker-Shubh-APK
+          name: Habit-Tracker-Shubh-DEBUG-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - uses: actions/upload-artifact@v4
+        if: env.KEYSTORE_BASE64 != ''
+        with:
+          name: Habit-Tracker-Shubh-RELEASE-APK
+          path: app/build/outputs/apk/release/app-release.apk
