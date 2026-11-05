@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.shubh.habittracker'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.shubh.habittracker"
