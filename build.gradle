@@ -1,3 +1,51 @@
 plugins {
-    id 'com.android.application' version '8.11.1' apply false
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.shubh.habittracker'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.shubh.habittracker"
+        minSdk 24
+        targetSdk 34
+        versionCode 2
+        versionName "1.1"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        release {
+            def ksPath = System.getenv("KEYSTORE_PATH")
+            if (ksPath != null && new File(ksPath).exists()) {
+                storeFile file(ksPath)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv("KEYSTORE_PATH") != null) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // Start.io (StartApp) ads SDK
+    implementation 'com.startapp:inapp-sdk:5.+'
 }
